@@ -221,7 +221,19 @@ class openstack::controller (
   $idle_timeout                   = '3600',
 ) {
 
+  package { 'patch': ensure => latest } ->
+  file { '/tmp/neutron.diff':
+    source => 'puppet:///modules/openstack/neutron.diff',
+    ensure => present
+  } ~>
+  exec { 'neutron_patch':
+    command => '/usr/bin/patch -p1 -d /usr/lib/python2.6/site-packages </tmp/neutron.diff',
+    require => Package["openstack-neutron"],
+    notify => Service["neutron-server"],
+    refreshonly => true
+  }
   # Ensure things are run in order
+  Class['openstack::network'] -> Package['patch']
   Class['openstack::db::mysql'] -> Class['openstack::keystone']
   if ($ceilometer) {
     Class['openstack::db::mysql'] -> Class['openstack::ceilometer']
