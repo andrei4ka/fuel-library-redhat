@@ -405,7 +405,11 @@
                     <type>0</type>
                     <snmp_community/>
                     <multiplier>0</multiplier>
+<<<<<<< HEAD
+                    <snmp_oid>interfaces.ifTable.ifEntry.ifInOctets.1</snmp_oid>
+=======
                     <snmp_oid/>
+>>>>>>> oss
                     <key>net.tcp.service[tcp,{$IP_MANAGEMENT},11211]</key>
                     <delay>30</delay>
                     <history>7</history>
