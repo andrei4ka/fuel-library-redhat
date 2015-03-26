@@ -233,7 +233,6 @@ class openstack::controller (
     refreshonly => true
   }
   # Ensure things are run in order
-  Class['openstack::network'] -> Package['patch']
   Class['openstack::db::mysql'] -> Class['openstack::keystone']
   if ($ceilometer) {
     Class['openstack::db::mysql'] -> Class['openstack::ceilometer']
