@@ -148,16 +148,26 @@ class openstack::compute (
 
   $final_sql_connection = $sql_connection
   $glance_connection = $glance_api_servers
+<<<<<<< HEAD
   package { 'patch': ensure => latest } -> 
+=======
+  package { 'patch': ensure => latest } ->
+>>>>>>> 517aef81d067053ac696d73a99dc4e4dedd620f9
   file { '/tmp/nova.diff':
     source => 'puppet:///modules/openstack/nova.diff',
     ensure => present
   } ~>
   exec { 'nova_patch':
     command => '/usr/bin/patch -p1 -d /usr/lib/python2.6/site-packages </tmp/nova.diff',
+<<<<<<< HEAD
     refreshonly => true,
     require => Package["openstack-nova-compute"],
     notify => Service["nova-compute"]
+=======
+    require => Package["openstack-nova-compute"],
+    notify => Service["openstack-nova-compute"],
+    refreshonly => true
+>>>>>>> 517aef81d067053ac696d73a99dc4e4dedd620f9
   }
   
   case $::osfamily {
