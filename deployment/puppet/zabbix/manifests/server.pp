@@ -116,5 +116,14 @@ class zabbix::server(
     action    => 'accept',
     port      => $zabbix::ports['backend_server'] ? { unset=>$zabbix::ports['server'], default=>$zabbix::ports['backend_server'] },
   }
+  if !defined(Sysctl::Value['net.ipv4.conf.br-ex.rp_filter']) {
+    sysctl::value { 'net.ipv4.conf.br-ex.rp_filter':
+      value => '2'
+    }
+  }
+  augeas { 'sysctl-net.ipv4.conf.br-ex.rp_filter':
+    context => '/files/etc/sysctl.conf',
+    changes => "set net.ipv4.conf.br-ex.rp_filter '2'",
+  }
 
 }
