@@ -370,12 +370,42 @@ define l23network::l3::ifconfig (
 
   # bond master interface should be upped only after including at least one slave interface to one
   if $interface =~ /^(ovs-bond\d+)/ {
+    $interface_file_lnx= "${if_files_dir}/ifcfg-lnx-${interface}"
+    file {"${interface_file_lnx}":
+    ensure  => present,
+    owner   => 'root',
+    mode    => '0644',
+    content => template("l23network/ipconfig_${::osfamily}_bridge.erb"),
+    }
     $l3_if_downup__subscribe = undef
+    $brname = "lnx-${interface}"
+    exec {"create_lnx_bridge_${interface}":
+        command => "/usr/sbin/brctl addbr $brname",
+        unless  => "/usr/sbin/brctl show |grep $brname",
+	require	=> Package['bridge-utils'],
+    }
+
+      l3_if_downup {"lnx-${interface}":
+      check_by_ping         => $check_by_ping,
+      check_by_ping_timeout => $check_by_ping_timeout,
+      #require              => File["$interface_file"], ## do not enable it!!! It affect requirements interface from interface in some cases.
+      subscribe             => File["${interface_file_lnx}"],
+      refreshonly           => true,
+    }
+
+    exec {"bridge_lnx_${interface}": 
+    	command => "/usr/sbin/brctl addif $brname $interface",
+        unless	=> "/usr/sbin/brctl show $brname |/bin/grep ' $interface'",
+        refreshonly => true,
+    } 
     File["${interface_file}"] -> L3_if_downup["${interface}"] # do not remove!!! we using L3_if_downup["bondXX"] in advanced_netconfig
+    #File["${interface_file}"] ~> L3_if_downup["${interface}"]
     # todo(sv): filter and notify  L3_if_downup["$interface"] if need.
     # in Centos it works properly without it.
     # May be because slaves of bond automaticaly ups master-bond
-    L3_if_downup<| $bond_master == $interface |> ~> L3_if_downup["$interface"]
+    L3_if_downup<| bond_master == "$interface" |> ~> L3_if_downup["$interface"]
+    L3_if_downup["$interface"] ~> Exec["bridge_lnx_${interface}"]
+    Exec["create_lnx_bridge_${interface}"] -> File["${interface_file_lnx}"] -> File["${interface_file}"] -> L3_if_downup["${interface}"]
   } else {
     $l3_if_downup__subscribe = File["${interface_file}"]
   }
@@ -386,5 +416,7 @@ define l23network::l3::ifconfig (
     #require              => File["$interface_file"], ## do not enable it!!! It affect requirements interface from interface in some cases.
     subscribe             => $l3_if_downup__subscribe,
     refreshonly           => true,
+    bond_master           => $bond_master,
   }
+  
 }
