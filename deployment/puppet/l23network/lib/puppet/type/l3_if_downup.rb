@@ -13,6 +13,11 @@ Puppet::Type.newtype(:l3_if_downup) do
       end
     end
 
+    newparam(:bond_master) do
+      defaultto('none')
+      desc "Bond Master Interface"
+    end
+
     newparam(:flush) do
       newvalues(true, false)
       defaultto(true)

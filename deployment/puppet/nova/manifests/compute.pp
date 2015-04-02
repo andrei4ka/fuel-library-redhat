@@ -100,13 +100,13 @@ class nova::compute (
     'DEFAULT/vncserver_proxyclient_address': value => $vncserver_proxyclient_address;
   }
 
-  if $neutron_enabled != true {
-    # Install bridge-utils if we use nova-network
-    package { 'bridge-utils':
-      ensure => present,
-      before => Nova::Generic_service['compute'],
-    }
-  }
+#  if $neutron_enabled != true {
+#    # Install bridge-utils if we use nova-network
+#    package { 'bridge-utils':
+#      ensure => present,
+#      before => Nova::Generic_service['compute'],
+#    }
+#  }
 
   nova::generic_service { 'compute':
     enabled        => $enabled,

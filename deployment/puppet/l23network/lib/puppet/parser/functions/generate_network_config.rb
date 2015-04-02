@@ -204,19 +204,20 @@ Puppet::Parser::Functions::newfunction(:generate_network_config, :type => :rvalu
           ifconfig_order.insert(-1, t[:name].to_sym())
         end
       elsif action == :bond
-        t[:provider] ||= 'ovs'  # default provider for Bond
+#        t[:provider] ||= 'ovs'  # default provider for Bond
+        t[:provider] ||= 'lnx'  # default provider for Bond
         if ! t[:interfaces].is_a? Array
           raise(Puppet::ParseError, "generate_network_config(): 'add-bond' resource should has non-empty 'interfaces' list.")
         end
-#        bond_mode = 0
-#        if t[:properties].include? 'bond_mode=balance-tcp'
-#          bond_mode = 4
-#        end
-#        if t[:properties].include? 'bond_mode=active-backup'
-#          bond_mode = 1
-#        end
+        bond_mode = 0
+        if t[:properties].include? 'bond_mode=balance-tcp'
+          bond_mode = 4
+        end
+        if t[:properties].include? 'bond_mode=active-backup'
+          bond_mode = 1
+        end
         if t[:provider] == 'lnx'
-#	  t[:properties] = {:mode => bond_mode, :miimon => 100}
+	  t[:properties] = {:mode => bond_mode, :miimon => 100}
           if ! t[:properties].is_a? Hash
             raise(Puppet::ParseError, "generate_network_config(): 'add-bond' resource should has 'properties' hash for '#{t[:provider]}' provider.")
           else
@@ -271,6 +272,7 @@ Puppet::Parser::Functions::newfunction(:generate_network_config, :type => :rvalu
         # add port to the ovs bridge as ordinary port
         tt = Marshal.load(Marshal.dump(t))
         tt[:action] = 'add-port'  # because lnx-bind is a ordinary port in OVS
+        tt[:name] = 'lnx-'+ tt[:name] ##OURS!!!!
         port_trans = L23network.sanitize_transformation(tt)
         resource = res_factory[:port][:resource]
         p_resource = Puppet::Parser::Resource.new(
@@ -282,9 +284,10 @@ Puppet::Parser::Functions::newfunction(:generate_network_config, :type => :rvalu
         trans.select{|k,v| ! [:action, :interfaces, :properties].index(k) }.each do |k,v|
           p_resource.set_parameter(k,v)
         end
+        p_resource.set_parameter(:port,port_trans[:name]) ##OURS!!!!
         req_list = []
         req_list.insert(-1, previous) if previous
-        req_list.insert(-1, "L3_if_downup[#{tt[:name]}]")
+        #req_list.insert(-1, "L3_if_downup[#{tt[:name]}]")
         p_resource.set_parameter(:require, req_list)
         resource.instantiate_resource(self, p_resource)
         compiler.add_resource(self, p_resource)
@@ -400,7 +403,7 @@ Puppet::Parser::Functions::newfunction(:generate_network_config, :type => :rvalu
         endpoint_body[:properties].each do |k,v|
           p_resource.set_parameter(k,v)
         end
-        p_resource.set_parameter(:require, [previous]) if previous
+#        p_resource.set_parameter(:require, [previous]) if previous
         resource.instantiate_resource(self, p_resource)
         compiler.add_resource(self, p_resource)
         transformation_success.insert(-1, "endpoint(#{endpoint_name})")
