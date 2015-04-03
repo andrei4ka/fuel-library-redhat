@@ -119,7 +119,9 @@ class NeutronCleaner(object):
                     sys.exit(1)
                 try:
                     #a_token = self.options.get('auth-token')
+                    a_token = None
                     #a_url = self.options.get('admin-auth-url')
+                    a_url = None
                     if a_token and a_url:
                         self.log.debug("Authentication by predefined token.")
                         # create keystone instance, authorized by service token
