@@ -37,6 +37,7 @@ class keystone::config::ldap(
   $user           = $::fuel_settings['keystone_ldap']['ldap_user'],
   $password       = $::fuel_settings['keystone_ldap']['ldap_pass'],
   $user_tree_dn   = $::fuel_settings['keystone_ldap']['ldap_user_tree_dn'],
+  $user_filter    = $::fuel_settings['keystone_ldap']['ldap_user_filter'],
 
 #  $url            = 'ldap://172.16.49.136',
 #  $suffix         = 'dc=caponelab,dc=local',
@@ -64,7 +65,7 @@ class keystone::config::ldap(
     'ldap/user_tree_dn':		value => "'${user_tree_dn}'";
     'ldap/user_objectclass':		value => 'person';
     'ldap/user_id_attribute':		value => 'cn';
-    'ldap/user_filter':   		value => '(cn=svc*prd)';
+    'ldap/user_filter':   		value => "'${user_filter}'";
     'ldap/user_name_attribute':		value => 'cn';
     'ldap/user_mail_attribute':		value => 'mail';
     'ldap/user_pass_attribute':		value => '';
