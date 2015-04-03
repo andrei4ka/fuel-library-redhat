@@ -224,6 +224,7 @@ class osnailyfacter::cluster_ha {
   $controller_hostnames = keys($controller_internal_addresses)
   $ceph_mon_hostnames = keys($ceph_mon_internal_addresses)
   $controller_nodes = ipsort(values($controller_internal_addresses))
+  $controller_nodes_public = ipsort(values($controller_public_addresses))
   $ceph_mon_nodes = ipsort(values($ceph_mon_internal_addresses))
   $controller_node_public  = $::fuel_settings['public_vip']
   $controller_node_address = $::fuel_settings['management_vip']
@@ -833,8 +834,8 @@ class osnailyfacter::cluster_ha {
           api            => '80'}
 
         class { 'zabbix':
-          api_ip              => $::fuel_settings['management_vip'],
-          server_ip           => $::fuel_settings['management_vip'],
+          api_ip              => $::fuel_settings['public_vip'],
+          server_ip           => $::fuel_settings['public_vip'],
           ports               => $zabbix_ports,
           db_ip               => $::fuel_settings['management_vip'],
           primary_controller  => $primary_controller,
@@ -1113,10 +1114,16 @@ class osnailyfacter::cluster_ha {
         agent => '10049',
         backend_agent => '10050'}
 
+      class { '::cluster':
+        stage             => 'corosync_setup',
+        internal_address  => $::internal_address,
+        unicast_addresses => $::osnailyfacter::cluster_ha::controller_internal_addresses,
+      }
+
       class { 'zabbix::monitoring':
-        api_ip     => $::fuel_settings['management_vip'],
-        server_vip => $::fuel_settings['management_vip'],
-        server_ips => $controller_nodes,
+        api_ip     => $::fuel_settings['public_vip'],
+        server_vip => $::fuel_settings['public_vip'],
+        server_ips => $controller_nodes_public,
         ports      => $zabbix_ports,
         username   => $zabbix_hash['username'],
         password   => $zabbix_hash['password'],

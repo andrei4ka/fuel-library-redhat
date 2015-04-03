@@ -14,6 +14,9 @@ class zabbix::ha::haproxy inherits openstack::ha::haproxy {
     },
 
     balancermember_options => 'check inter 5000 rise 2 fall 3',
+    public                 => true,
+    internal               => false,
+    public_virtual_ip      => $zabbix::api_ip,
   }
 
   openstack::ha::haproxy_service { 'zabbix-server':
@@ -30,6 +33,9 @@ class zabbix::ha::haproxy inherits openstack::ha::haproxy {
     },
 
     balancermember_options => 'check inter 5000 rise 2 fall 3',
+    public                 => true,
+    internal               => false,
+    public_virtual_ip      => $zabbix::api_ip,
   }
 
   firewall { '998 zabbix agent vip':
