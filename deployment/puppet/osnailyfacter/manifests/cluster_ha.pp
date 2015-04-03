@@ -270,16 +270,17 @@ class osnailyfacter::cluster_ha {
 
   #Determine who should be the default backend
 
-  if ($storage_hash['images_ceph']) {
-    $glance_backend = 'ceph'
-    $glance_known_stores = [ 'glance.store.rbd.Store', 'glance.store.http.Store' ]
-  } elsif ($storage_hash['images_vcenter']) {
-    $glance_backend = 'vmware'
-    $glance_known_stores = [ 'glance.store.vmware_datastore.Store', 'glance.store.http.Store' ]
-  } else {
-    $glance_backend = 'swift'
-    $glance_known_stores = [ 'glance.store.swift.Store', 'glance.store.http.Store' ]
-  }
+ # if ($storage_hash['images_ceph']) {
+ #   $glance_backend = 'ceph'
+ #   $glance_known_stores = [ 'glance.store.rbd.Store', 'glance.store.http.Store' ]
+ # } elsif ($storage_hash['images_vcenter']) {
+ #   $glance_backend = 'vmware'
+ #   $glance_known_stores = [ 'glance.store.vmware_datastore.Store', 'glance.store.http.Store' ]
+ # } else {
+ #   $glance_backend = 'swift'
+    $glance_backend = 'file'
+ #   $glance_known_stores = [ 'glance.store.swift.Store', 'glance.store.http.Store' ]
+ # }
 
   if ($::use_ceph) {
     #$primary_mons   = $controllers
@@ -312,11 +313,11 @@ class osnailyfacter::cluster_ha {
   }
 
   # Use Swift if it isn't replaced by vCenter, Ceph for BOTH images and objects
-  if !($storage_hash['images_ceph'] and $storage_hash['objects_ceph']) and !$storage_hash['images_vcenter'] {
-    $use_swift = true
-  } else {
+#  if !($storage_hash['images_ceph'] and $storage_hash['objects_ceph']) and !$storage_hash['images_vcenter'] {
+#    $use_swift = true
+#  } else {
     $use_swift = false
-  }
+#  }
 
   if ($use_swift) {
     if !$::fuel_settings['swift_partition'] {
