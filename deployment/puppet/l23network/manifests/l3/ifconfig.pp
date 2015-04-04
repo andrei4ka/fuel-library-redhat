@@ -394,7 +394,7 @@ define l23network::l3::ifconfig (
     }
 
     exec {"bridge_lnx_${interface}": 
-    	command => "/usr/sbin/brctl addif $brname $interface",
+    	command => "/usr/sbin/brctl addif $brname $interface; ifdown $interface; ifup $interface",
         unless	=> "/usr/sbin/brctl show $brname |/bin/grep ' $interface'",
         refreshonly => true,
     } 
