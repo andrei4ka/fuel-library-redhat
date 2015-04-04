@@ -13,7 +13,9 @@ module Puppet::Parser::Functions
     nodes.each do |node|
       if node['role'] == 'ceph-osd' or node['role'] == 'ceph-mon' or node['role'] == 'primary-ceph-mon'
         address = 'storage_address'
-       else
+      elsif node['role'] == 'zabbix-monitoring'
+        next
+      else
         address = 'internal_address'
       end
       hosts[node['fqdn']]={:ip=>node[address],:host_aliases=>[node['name']]}
