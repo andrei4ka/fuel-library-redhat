@@ -284,7 +284,7 @@ class nova(
   $install_utilities        = true,
   $mysql_module             = '0.9',
   $notification_driver      = [],
-  $notification_topics      = 'notifications,monitoring',
+  $notification_topics      = 'notifications,oss',
   $notify_api_faults        = false,
   $notify_on_state_change   = undef,
   # DEPRECATED PARAMETERS

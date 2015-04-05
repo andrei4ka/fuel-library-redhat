@@ -246,7 +246,7 @@ class neutron (
   $log_facility                = 'LOG_USER',
   $log_file                    = false,
   $log_dir                     = '/var/log/neutron',
-  $notification_topics         = 'notifications,monitoring',
+  $notification_topics         = 'notifications,oss',
 ) {
 
   include neutron::params

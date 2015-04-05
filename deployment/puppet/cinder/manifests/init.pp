@@ -73,7 +73,7 @@ class cinder (
   # DEPRECATED PARAMETERS
   $sql_connection              = undef,
   $sql_idle_timeout            = undef,
-  $notification_topics         = 'notifications,monitoring',
+  $notification_topics         = 'notifications',
 ) {
 
   include cinder::params
