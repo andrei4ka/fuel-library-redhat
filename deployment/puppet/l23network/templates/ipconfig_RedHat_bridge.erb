@@ -1,6 +1,7 @@
 DEVICE=lnx-<%= @interface %>
 BOOTPROTO=none
 ONBOOT=yes
+TYPE=Bridge
 USERCTL=no
 <% if @vlan_mode -%>
 VLAN=yes
