@@ -1,0 +1,129 @@
+---
+sources:
+    - name: meter_source
+      interval: 60
+      meters:
+          - "instance"
+          - "memory"
+          - "memory.usage"
+          - "cpu_util"
+          - "vcpus"
+          - "disk.read.requests.rate"
+          - "disk.device.read.requests.rate"
+          - "disk.write.requests.rate"
+          - "disk.device.write.requests.rate"
+          - "disk.read.bytes.rate"
+          - "disk.device.read.bytes.rate"
+          - "disk.write.bytes.rate"
+          - "disk.device.write.bytes.rate"
+          - "disk.root.size"
+          - "disk.ephemeral.size"
+          - "network.incoming.bytes.rate"  
+          - "network.incoming.packets.rate"  
+          - "network.outgoing.bytes.rate"  
+          - "network.outgoing.packets.rate"  
+          - "image"
+          - "image.size"
+          - "image.update"
+          - "image.upload"
+          - "image.delete"
+          - "image.download"
+          - "image.serve"
+          - "volume"
+          - "volume.size"
+          - "snapshot" 
+          - "snapshot.size"
+          - "identity.project.created"  
+          - "identity.project.deleted"  
+          - "identity.project.updated"  
+          - "identity.role.created"  
+          - "identity.role.deleted"  
+          - "identity.role.updated"  
+          - "network" 
+          - "network.create" 
+          - "network.update"
+          - "subnet"
+          - "subnet.create"
+          - "subnet.update"
+          - "router"
+          - "router.create"
+          - "router.update"
+          - "ip.floating"
+          - "ip.floating.create"
+          - "ip.floating.update"
+      sinks:
+          - meter_sink
+    - name: cpu_source
+      interval: 60
+      meters:
+          - "cpu"
+      sinks:
+          - cpu_sink
+    - name: disk_source
+      interval: 60
+      meters:
+          - "disk.read.bytes"
+          - "disk.device.read.bytes"
+          - "disk.read.requests"
+          - "disk.device.read.requests"
+          - "disk.write.bytes"
+          - "disk.device.write.bytes"
+          - "disk.write.requests"
+          - "disk.device.write.requests"
+      sinks:
+          - disk_sink
+    - name: network_source
+      interval: 60
+      meters:
+          - "network.incoming.bytes"
+          - "network.incoming.packets"
+          - "network.outgoing.bytes"
+          - "network.outgoing.packets"
+      sinks:
+          - network_sink
+sinks:
+    - name: meter_sink
+      transformers:
+      publishers:
+          - notifier://
+    - name: cpu_sink
+      transformers:
+          - name: "rate_of_change"
+            parameters:
+                target:
+                    name: "cpu_util"
+                    unit: "%"
+                    type: "gauge"
+                    scale: "100.0 / (10**9 * (resource_metadata.cpu_number or 1))"
+      publishers:
+          - notifier://
+    - name: disk_sink
+      transformers:
+          - name: "rate_of_change"
+            parameters:
+                source:
+                    map_from:
+                        name: "disk\\.(read|write)\\.(bytes|requests)"
+                        unit: "(B|request)"
+                target:
+                    map_to:
+                        name: "disk.\\1.\\2.rate"
+                        unit: "\\1/s"
+                    type: "gauge"
+      publishers:
+          - notifier://
+    - name: network_sink
+      transformers:
+          - name: "rate_of_change"
+            parameters:
+                source:
+                   map_from:
+                       name: "network\\.(incoming|outgoing)\\.(bytes|packets)"
+                       unit: "(B|packet)"
+                target:
+                    map_to:
+                        name: "network.\\1.\\2.rate"
+                        unit: "\\1/s"
+                    type: "gauge"
+      publishers:
+          - notifier://
