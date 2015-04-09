@@ -3,18 +3,17 @@ class zabbix::monitoring::ceph_mon {
   include zabbix::params
 
   # Ceph (MON)
-  if defined(Class['ceph::mon']) {
-
+  if defined_in_state(Class['Ceph::Mon']) {
     zabbix_template_link { "$zabbix::params::host_name Template App Ceph Cluster":
       host => $zabbix::params::host_name,
       template => 'Template App Ceph Cluster',
-      api => $zabbix::params::api_hash,
+      api => $zabbix::monitoring::api_hash,
     }
 
     zabbix_template_link { "$zabbix::params::host_name Template App Ceph MON":
       host => $zabbix::params::host_name,
       template => 'Template App Ceph MON',
-      api => $zabbix::params::api_hash,
+      api => $zabbix::monitoring::api_hash,
     }
 
     zabbix::agent::userparameter {
@@ -81,12 +80,11 @@ class zabbix::monitoring::ceph_mon {
   }
 
   # Ceph (OSD)
-  if defined(Class['ceph::osd']) {
-
+  if defined_in_state(Class['Ceph::Osd']) {
     zabbix_template_link { "$zabbix::params::host_name Template App Ceph OSD":
       host => $zabbix::params::host_name,
       template => 'Template App Ceph OSD',
-      api => $zabbix::params::api_hash,
+      api => $zabbix::monitoring::api_hash,
     }
   }
 }

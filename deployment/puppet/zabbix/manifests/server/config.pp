@@ -273,4 +273,25 @@ class zabbix::server::config(
     xml_file => '/etc/zabbix/import/Template_App_OpenStack_Ceilometer_Compute.xml',
     api => $api_hash,
   }
+
+  # Ceph
+  zabbix_configuration_import { 'Template_App_Ceph_Cluster.xml Import':
+    ensure   => present,
+    xml_file => '/etc/zabbix/import/Template_App_Ceph_Cluster.xml',
+    api => $api_hash,
+  }
+  zabbix_configuration_import { 'Template_App_Ceph_MON.xml Import':
+    ensure   => present,
+    xml_file => '/etc/zabbix/import/Template_App_Ceph_MON.xml',
+    api => $api_hash,
+  }
+  zabbix_configuration_import { 'Template_App_Ceph_OSD.xml Import':
+    ensure   => present,
+    xml_file => '/etc/zabbix/import/Template_App_Ceph_OSD.xml',
+    api => $api_hash,
+  }
+
+
+
+
 }

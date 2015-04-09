@@ -80,9 +80,11 @@ class zabbix::params {
   #zabbix hosts params
   $host_name              = $::fqdn
   $host_ip                = $::public_address
-  $host_groups            = ['ManagedByPuppet', 'Controllers', 'Computes', 'CephNodes']
+  $host_groups            = ['ManagedByPuppet', 'Controllers', 'Computes', 'CephNodes', 'Mongo', 'Fuel']
   $host_groups_base       = ['ManagedByPuppet']
   $host_groups_controller = ['Controllers']
   $host_groups_compute    = ['Computes']
+  $host_groups_mongo      = ['Mongo']
+  $host_groups_fuel       = ['Fuel']
   $host_groups_ceph       = ['CephNodes']
 }

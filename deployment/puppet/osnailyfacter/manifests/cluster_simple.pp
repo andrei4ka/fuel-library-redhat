@@ -135,6 +135,7 @@ class osnailyfacter::cluster_simple {
 
   $controller_node_address = $controller[0]['internal_address']
   $controller_node_public = $controller[0]['public_address']
+  $controller_node_storage = $controller[0]['storage_address']
   $roles = node_roles($nodes_hash, $::fuel_settings['uid'])
 
   # AMQP client configuration
@@ -721,10 +722,16 @@ class osnailyfacter::cluster_simple {
         api => '80',
         agent => '10049'}
 
+      if defined_in_state(Class['Ceph::Osd']) or defined_in_state(Class['Ceph::Mon'])  {
+        $zabbix_server_ips = $controller_node_storage
+      } else {
+        $zabbix_server_ips = $controller_node_address
+      }
+
       class { 'zabbix::monitoring':
         api_ip     => $controller_node_address,
         server_vip => $controller_node_address,
-        server_ips => [$controller_node_address],
+        server_ips => [$zabbix_server_ips],
         ports      => $zabbix_ports,
         username   => $zabbix_hash['username'],
         password   => $zabbix_hash['password'],

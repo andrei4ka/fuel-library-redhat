@@ -36,6 +36,10 @@ class zabbix::agent(
     $groups = union($zabbix::params::host_groups_base, $zabbix::params::host_groups_controller)
   } elsif defined_in_state(Class['openstack::compute']) {
     $groups = union($zabbix::params::host_groups_base, $zabbix::params::host_groups_compute)
+  } elsif defined_in_state(Class['mongodb::server::service']) {
+    $groups = union($zabbix::params::host_groups_base, $zabbix::params::host_groups_mongo)
+  } elsif defined_in_state(Class['nailgun::supervisor']) {
+    $groups = union($zabbix::params::host_groups_base, $zabbix::params::host_groups_fuel)
   } elsif defined_in_state(Class['ceph']) {
     $groups = union($zabbix::params::host_groups_base, $zabbix::params::host_groups_ceph)
   } else {
