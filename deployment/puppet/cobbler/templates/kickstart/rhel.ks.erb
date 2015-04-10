@@ -170,6 +170,7 @@ yum-config-manager --disableplugin=fastestmirror --save &>/dev/null
 
 echo -e "modprobe nf_conntrack_ipv4\nmodprobe nf_conntrack_ipv6" >> /etc/rc.modules
 chmod +x /etc/rc.modules
+echo "options bonding max_bonds=0" >> /etc/modprobe.d/bonding.conf
 echo -e "net.nf_conntrack_max=1048576" >> /etc/sysctl.conf
 mkdir -p /var/log/coredump
 echo -e "kernel.core_pattern=/var/log/coredump/core.%e.%p.%h.%t" >> /etc/sysctl.conf
