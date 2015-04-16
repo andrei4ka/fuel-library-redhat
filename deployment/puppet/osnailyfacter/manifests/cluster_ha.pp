@@ -155,6 +155,8 @@ class osnailyfacter::cluster_ha {
   $primary_ceph_mon_nodes = filter_nodes($nodes_hash,'role','primary-ceph-mon')
   $vip_management_cidr_netmask = netmask_to_cidr($primary_controller_nodes[0]['internal_netmask'])
   $vip_public_cidr_netmask = netmask_to_cidr($primary_controller_nodes[0]['public_netmask'])
+  $ceph_mons = concat($primary_ceph_mon_nodes, filter_nodes($nodes_hash,'role','ceph-mon'))
+  $ceph_mon_storage_addresses = join(filter_hash($ceph_mons,'storage_address'),",")
 
   if $::use_neutron {
     $vip_mgmt_other_nets = join($::fuel_settings['network_scheme']['endpoints']["$::internal_int"]['other_nets'], ' ')
@@ -171,8 +173,8 @@ class osnailyfacter::cluster_ha {
       gateway              => 'link',
       gateway_metric       => '20',
       other_networks       => $vip_mgmt_other_nets,
-      iptables_start_rules => "iptables -t mangle -I PREROUTING -i ${::internal_int}-hapr -j MARK --set-mark 0x2b ; iptables -t nat -I POSTROUTING -m mark --mark 0x2b ! -o ${::internal_int} -j MASQUERADE",
-      iptables_stop_rules  => "iptables -t mangle -D PREROUTING -i ${::internal_int}-hapr -j MARK --set-mark 0x2b ; iptables -t nat -D POSTROUTING -m mark --mark 0x2b ! -o ${::internal_int} -j MASQUERADE",
+      iptables_start_rules => "iptables -t mangle -I PREROUTING 1 -d ${ceph_mon_storage_addresses} -i ${::internal_int}-hapr -j RETURN ; iptables -t mangle -I PREROUTING -i ${::internal_int}-hapr -j MARK --set-mark 0x2b ; iptables -t nat -I POSTROUTING -m mark --mark 0x2b ! -o ${::internal_int} -j MASQUERADE",
+      iptables_stop_rules  => "iptables -t mangle -D PREROUTING -d ${ceph_mon_storage_addresses} -i ${::internal_int}-hapr -j RETURN ; iptables -t mangle -D PREROUTING -i ${::internal_int}-hapr -j MARK --set-mark 0x2b ; iptables -t nat -D POSTROUTING -m mark --mark 0x2b ! -o ${::internal_int} -j MASQUERADE",
       iptables_comment     => "masquerade-for-management-net",
       tie_with_ping        => false,
       ping_host_list       => "",
@@ -197,8 +199,8 @@ class osnailyfacter::cluster_ha {
       gateway              => 'link',
       gateway_metric       => '10',
       other_networks       => $vip_publ_other_nets,
-      iptables_start_rules => "iptables -t mangle -I PREROUTING -i ${::public_int}-hapr -j MARK --set-mark 0x2a ; iptables -t nat -I POSTROUTING -m mark --mark 0x2a ! -o ${::public_int} -j MASQUERADE",
-      iptables_stop_rules  => "iptables -t mangle -D PREROUTING -i ${::public_int}-hapr -j MARK --set-mark 0x2a ; iptables -t nat -D POSTROUTING -m mark --mark 0x2a ! -o ${::public_int} -j MASQUERADE",
+      iptables_start_rules => "iptables -t mangle -I PREROUTING 1 -d ${ceph_mon_storage_addresses} -i ${::public_int}-hapr -j RETURN ; iptables -t mangle -I PREROUTING -i ${::public_int}-hapr -j MARK --set-mark 0x2a ; iptables -t nat -I POSTROUTING -m mark --mark 0x2a ! -o ${::public_int} -j MASQUERADE",
+      iptables_stop_rules  => "iptables -t mangle -D PREROUTING -d ${ceph_mon_storage_addresses} -i ${::public_int}-hapr -j RETURN ; iptables -t mangle -D PREROUTING -i ${::public_int}-hapr -j MARK --set-mark 0x2a ; iptables -t nat -D POSTROUTING -m mark --mark 0x2a ! -o ${::public_int} -j MASQUERADE",
       iptables_comment     => "masquerade-for-public-net",
       tie_with_ping        => $run_ping_checker,
       ping_host_list       => $::use_neutron ? {
@@ -213,14 +215,12 @@ class osnailyfacter::cluster_ha {
 
 
   ##TODO: simply parse nodes array
-  $ceph_mons = concat($primary_ceph_mon_nodes, filter_nodes($nodes_hash,'role','ceph-mon'))
   $controllers = concat($primary_controller_nodes, filter_nodes($nodes_hash,'role','controller'))
   $controller_internal_addresses = nodes_to_hash($controllers,'name','internal_address')
   $ceph_mon_internal_addresses = nodes_to_hash($ceph_mons,'name','internal_address')
   $controller_public_addresses = nodes_to_hash($controllers,'name','public_address')
   $ceph_mon_public_addresses = nodes_to_hash($ceph_mons,'name','public_address')
   $controller_storage_addresses = nodes_to_hash($controllers,'name','storage_address')
-  $ceph_mon_storage_addresses = nodes_to_hash($ceph_mons,'name','storage_address')
   $controller_hostnames = keys($controller_internal_addresses)
   $ceph_mon_hostnames = keys($ceph_mon_internal_addresses)
   $controller_nodes = ipsort(values($controller_internal_addresses))
