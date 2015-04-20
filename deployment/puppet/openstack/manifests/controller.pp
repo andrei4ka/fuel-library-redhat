@@ -232,6 +232,20 @@ class openstack::controller (
     notify => Service["neutron-server"],
     refreshonly => true
   }
+ 
+  file { '/tmp/neutron-dist.conf.patch':
+    source => 'puppet:///modules/openstack/neutron-dist.conf.patch',
+    ensure => present
+  } ~>
+  exec { 'neutron-dist_patch':
+    command => '/usr/bin/patch -p4 -d /usr/share/neutron/ < /tmp/neutron-dist.conf.patch',
+    require => Package["openstack-neutron"],
+    notify => Service["neutron-server"],
+    refreshonly => true
+  }
+  Package['patch'] -> File['/tmp/neutron-dist.conf.patch']
+
+  neutron-dist.conf.patch
   # Ensure things are run in order
   Class['openstack::db::mysql'] -> Class['openstack::keystone']
   if ($ceilometer) {

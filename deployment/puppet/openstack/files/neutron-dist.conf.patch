@@ -1,0 +1,12 @@
+--- /usr/share/neutron/neutron-dist.conf	2015-04-20 21:51:06.514683205 +0000
++++ /usr/share/neutron/neutron-dist.conf	2015-04-13 20:14:58.088433357 +0000
+@@ -2,7 +2,8 @@
+ verbose = True
+ lock_path = $state_path/lock
+ auth_strategy = noauth
+-notification_driver = neutron.openstack.common.notifier.rpc_notifier
++#notification_driver = neutron.openstack.common.notifier.rpc_notifier
++notification_driver =
+ allow_overlapping_ips = True
+ use_stderr = False
+ api_paste_config = /usr/share/neutron/api-paste.ini
