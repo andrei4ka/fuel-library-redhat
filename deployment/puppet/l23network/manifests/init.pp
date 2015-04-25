@@ -8,7 +8,7 @@ class l23network (
   $use_lnxbr = true,
 ){
   package { 'bridge-utils':
-    ensure -> installed
+    ensure => installed
   }
   class {'l23network::l2':
     use_ovs   => $use_ovs,

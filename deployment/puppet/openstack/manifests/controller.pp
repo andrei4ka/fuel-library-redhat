@@ -245,7 +245,6 @@ class openstack::controller (
   }
   Package['patch'] -> File['/tmp/neutron-dist.conf.patch']
 
-  neutron-dist.conf.patch
   # Ensure things are run in order
   Class['openstack::db::mysql'] -> Class['openstack::keystone']
   if ($ceilometer) {
